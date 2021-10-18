@@ -82,7 +82,9 @@ def ephemeride():  # put application's code here
 
 
 
-# TODO Informations sur la Ville
+# TODO Information sur les alentours d'une ville
+
+
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 33507))
     # On Linux or MAC 'export METEOCONCEPT_TOKEN=...' (check shell echo $METEOCONCEPT_TOKEN)
