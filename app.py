@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 @app.route('/config')
 def config():  # put application's code here
-    return str(cf.INDENT)+str(cf.WEATHER)+str(cf.WINDDIRS)
+    return str(INDENT)+str(WEATHER)+str(WINDDIRS)
 
 @app.route('/')
 def hello_world():  # put application's code here
