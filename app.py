@@ -38,6 +38,9 @@ def searchCity():  # put application's code here
     if METEOCONCEPT_TOKEN is None:
         log('Env variable METEOCONCEPT_TOKEN not passed')
         return 'Env variable METEOCONCEPT_TOKEN not passed'
+    elif search is None:
+        log('GET/POST search variable not passed')
+        return 'GET/POST search variable not passed'
     else:
         log('Env variable METEOCONCEPT_TOKEN passed')
         with closing(urlopen(API_LOCATION_CITIES + API_TOKEN + METEOCONCEPT_TOKEN + API_SEARCH + search)) as f:
@@ -56,6 +59,9 @@ def getCity():  # put application's code here
     if METEOCONCEPT_TOKEN is None:
         log('Env variable METEOCONCEPT_TOKEN not passed')
         return 'Env variable METEOCONCEPT_TOKEN not passed'
+    elif insee is None:
+        log('GET/POST insee variable not passed')
+        return 'GET/POST insee variable not passed'
     else:
         log('Env variable METEOCONCEPT_TOKEN passed')
         with closing(urlopen(API_LOCATION_CITY + API_TOKEN + METEOCONCEPT_TOKEN + API_INSEE + insee)) as f:
@@ -74,11 +80,15 @@ def ephemeride():  # put application's code here
     if METEOCONCEPT_TOKEN is None:
         log('Env variable METEOCONCEPT_TOKEN not passed')
         return 'Env variable METEOCONCEPT_TOKEN not passed'
+    elif insee is None:
+        log('GET/POST insee variable not passed')
+        return 'GET/POST insee variable not passed'
     else:
         log('Env variable METEOCONCEPT_TOKEN passed')
         with closing(urlopen(API_EPHEMERIDE + API_TOKEN + METEOCONCEPT_TOKEN + API_INSEE + insee)) as f:
             cityEph = json.loads(f.read())
         return json.dumps(cityEph, indent=INDENT, sort_keys=True)
+
 
 # Information sur les alentours d'une ville
 @app.route('/around', methods=['POST', 'GET'])
@@ -93,11 +103,15 @@ def around():  # put application's code here
     if METEOCONCEPT_TOKEN is None:
         log('Env variable METEOCONCEPT_TOKEN not passed')
         return 'Env variable METEOCONCEPT_TOKEN not passed'
+    elif insee is None or radius is None:
+        log('GET/POST insee or radius variable not passed')
+        return 'GET/POST insee or radiu variable not passed'
     else:
         log('Env variable METEOCONCEPT_TOKEN passed')
         with closing(urlopen(API_OBSERVATIONS_AROUND + API_TOKEN + METEOCONCEPT_TOKEN + API_INSEE + insee + API_RADIUS + radius)) as f:
             around = json.loads(f.read())
         return json.dumps(around, indent=INDENT, sort_keys=True)
+
 
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 33507))
