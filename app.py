@@ -35,7 +35,7 @@ def searchCity():  # put application's code here
     else:
         search = request.args.get('search')
 
-    if METEOCONCEPT_TOKEN == -1:
+    if METEOCONCEPT_TOKEN is None:
         log('Env variable METEOCONCEPT_TOKEN not passed')
         return 'Env variable METEOCONCEPT_TOKEN not passed'
     else:
@@ -53,7 +53,7 @@ def getCity():  # put application's code here
     else:
         insee = request.args.get('insee')
 
-    if METEOCONCEPT_TOKEN == -1:
+    if METEOCONCEPT_TOKEN is None:
         log('Env variable METEOCONCEPT_TOKEN not passed')
         return 'Env variable METEOCONCEPT_TOKEN not passed'
     else:
@@ -71,7 +71,7 @@ def ephemeride():  # put application's code here
     else:
         insee = request.args.get('insee')
 
-    if METEOCONCEPT_TOKEN == -1:
+    if METEOCONCEPT_TOKEN is None:
         log('Env variable METEOCONCEPT_TOKEN not passed')
         return 'Env variable METEOCONCEPT_TOKEN not passed'
     else:
@@ -82,7 +82,7 @@ def ephemeride():  # put application's code here
 
 # Information sur les alentours d'une ville
 @app.route('/around', methods=['POST', 'GET'])
-def ephemeride():  # put application's code here
+def around():  # put application's code here
     if request.method == 'POST':
         insee = request.form['insee']
         radius = request.form['radius']
@@ -90,7 +90,7 @@ def ephemeride():  # put application's code here
         insee = request.args.get('insee')
         radius = request.args.get('radius')
 
-    if METEOCONCEPT_TOKEN == -1:
+    if METEOCONCEPT_TOKEN is None:
         log('Env variable METEOCONCEPT_TOKEN not passed')
         return 'Env variable METEOCONCEPT_TOKEN not passed'
     else:
@@ -99,13 +99,9 @@ def ephemeride():  # put application's code here
             around = json.loads(f.read())
         return json.dumps(around, indent=INDENT, sort_keys=True)
 
-
-
-
-
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 33507))
     # On Linux or MAC 'export METEOCONCEPT_TOKEN=...' (check shell echo $METEOCONCEPT_TOKEN)
     # On Windows 'set METEOCONCEPT_TOKEN=...' (check on Powershell echo $Env:METEOCONCEPT_TOKEN)
-    METEOCONCEPT_TOKEN = int(os.environ.get('METEOCONCEPT_TOKEN', -1))
+    METEOCONCEPT_TOKEN = os.environ.get('METEOCONCEPT_TOKEN', None)
     app.run(host='0.0.0.0', port=PORT, debug=True)
