@@ -2,6 +2,9 @@ import os
 import sys
 
 from flask import Flask, request, render_template
+from flask_wtf import FlaskForm
+from wtforms import StringField, IntegerField, FloatField, validators
+from wtforms.validators import InputRequired
 from contextlib import closing
 from urllib.request import urlopen
 import json
@@ -13,6 +16,17 @@ def log(*args):
     print(args[0] % (len(args) > 1 and args[1:] or []))
     sys.stdout.flush()
 
+
+class Search(FlaskForm):
+    search = StringField('Search', [validators.InputRequired()])
+
+
+class City(FlaskForm):
+    insee = StringField('Insee', [validators.InputRequired()])
+
+
+class Around(FlaskForm):
+    insee = StringField('Insee', [validators.InputRequired()])
 
 def getApiCity(search):
     if METEOCONCEPT_TOKEN is None:
@@ -85,9 +99,19 @@ def index():
     response_cities = False
     response_ephemeride = False
     response_around = False
-    if request.method == 'POST':
-        search = request.form['search']
-        response_cities = getApiCity(search)
+
+    search = Search()
+    city = City()
+    around = Around()
+
+    if search.validate_on_submit():
+        return render_template('index.html', cities=getApiCity(search))
+
+    if city.validate_on_submit():
+        return render_template('index.html', ephemeride=getEphemeride(city))
+
+    if around.validate_on_submit():
+        return render_template('index.html', around=getAround(around, 1))
 
         # TODO Multiple form for insee ? or ajax ?
         # insee = request.form['insee']
@@ -144,4 +168,5 @@ if __name__ == '__main__':
     # On Linux or MAC 'export METEOCONCEPT_TOKEN=...' (check shell echo $METEOCONCEPT_TOKEN)
     # On Windows 'set METEOCONCEPT_TOKEN=...' (check on Powershell echo $Env:METEOCONCEPT_TOKEN)
     METEOCONCEPT_TOKEN = os.environ.get('METEOCONCEPT_TOKEN', None)
+    app.config['SECRET_KEY'] = 'secret_key'
     app.run(host='0.0.0.0', port=PORT, debug=True)
