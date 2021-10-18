@@ -20,6 +20,8 @@ li{
 }
 
 .response{
-
 }
 
+.error{
+    color: red;
+}

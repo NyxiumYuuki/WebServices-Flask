@@ -15,40 +15,6 @@ def log(*args):
 
 
 def getApiCity(search):
-    with closing(urlopen(API_LOCATION_CITIES + API_TOKEN + METEOCONCEPT_TOKEN + API_SEARCH + search)) as f:
-        cities = json.loads(f.read())['cities']
-    return cities
-
-
-app = Flask(__name__)
-
-
-
-@app.route('/config')
-def config():  # put application's code here
-    return str(INDENT) + str(WEATHER) + str(WINDDIRS)
-
-
-@app.route('/', methods=['POST', 'GET'])
-def index():
-    response = False
-    if request.method == 'POST':
-        search = request.form['search']
-        if search is None:
-            response = []
-        else:
-            response = getApiCity(search)
-    return render_template('index.html', response=response)
-
-
-# Recherche d'une ville
-@app.route('/searchCity', methods=['POST', 'GET'])
-def searchCity():  # put application's code here
-    if request.method == 'POST':
-        search = request.form['search']
-    else:
-        search = request.args.get('search')
-
     if METEOCONCEPT_TOKEN is None:
         log('Env variable METEOCONCEPT_TOKEN not passed')
         return 'Env variable METEOCONCEPT_TOKEN not passed'
@@ -57,38 +23,28 @@ def searchCity():  # put application's code here
         return 'GET/POST search variable not passed'
     else:
         log('Env variable METEOCONCEPT_TOKEN passed')
-    return json.dumps(getApiCity(search), indent=INDENT, sort_keys=True)
+        with closing(urlopen(API_LOCATION_CITIES + API_TOKEN + METEOCONCEPT_TOKEN + API_SEARCH + search)) as f:
+            cities = json.loads(f.read())['cities']
+        return [search, cities]
 
 
-# Informations sur la Ville
-@app.route('/city', methods=['POST', 'GET'])
-def getCity():  # put application's code here
-    if request.method == 'POST':
-        insee = request.form['insee']
-    else:
-        insee = request.args.get('insee')
-
+def getAround(insee, radius):
     if METEOCONCEPT_TOKEN is None:
         log('Env variable METEOCONCEPT_TOKEN not passed')
         return 'Env variable METEOCONCEPT_TOKEN not passed'
-    elif insee is None:
-        log('GET/POST insee variable not passed')
-        return 'GET/POST insee variable not passed'
+    elif insee is None or radius is None:
+        log('GET/POST insee or radius variable not passed')
+        return 'GET/POST insee or radiu variable not passed'
     else:
         log('Env variable METEOCONCEPT_TOKEN passed')
-        with closing(urlopen(API_LOCATION_CITY + API_TOKEN + METEOCONCEPT_TOKEN + API_INSEE + insee)) as f:
-            city = json.loads(f.read())['city']
-        return json.dumps(city, indent=INDENT, sort_keys=True)
+        with closing(
+                urlopen(
+                    API_OBSERVATIONS_AROUND + API_TOKEN + METEOCONCEPT_TOKEN + API_INSEE + insee + API_RADIUS + radius)) as f:
+            around = json.loads(f.read())
+        return [insee, radius, around]
 
 
-# Information sur la ville et Ephéméride
-@app.route('/ephemeride', methods=['POST', 'GET'])
-def ephemeride():  # put application's code here
-    if request.method == 'POST':
-        insee = request.form['insee']
-    else:
-        insee = request.args.get('insee')
-
+def getEphemeride(insee):
     if METEOCONCEPT_TOKEN is None:
         log('Env variable METEOCONCEPT_TOKEN not passed')
         return 'Env variable METEOCONCEPT_TOKEN not passed'
@@ -99,7 +55,76 @@ def ephemeride():  # put application's code here
         log('Env variable METEOCONCEPT_TOKEN passed')
         with closing(urlopen(API_EPHEMERIDE + API_TOKEN + METEOCONCEPT_TOKEN + API_INSEE + insee)) as f:
             cityEph = json.loads(f.read())
-        return json.dumps(cityEph, indent=INDENT, sort_keys=True)
+        return [insee, cityEph]
+
+
+def getCity(insee):
+    if METEOCONCEPT_TOKEN is None:
+        log('Env variable METEOCONCEPT_TOKEN not passed')
+        return 'Env variable METEOCONCEPT_TOKEN not passed'
+    elif insee is None:
+        log('GET/POST insee variable not passed')
+        return 'GET/POST insee variable not passed'
+    else:
+        log('Env variable METEOCONCEPT_TOKEN passed')
+        with closing(urlopen(API_LOCATION_CITY + API_TOKEN + METEOCONCEPT_TOKEN + API_INSEE + insee)) as f:
+            city = json.loads(f.read())['city']
+        return [insee, city]
+
+
+app = Flask(__name__)
+
+
+@app.route('/config')
+def config():  # put application's code here
+    return str(INDENT) + str(WEATHER) + str(WINDDIRS)
+
+
+@app.route('/', methods=['POST', 'GET'])
+def index():
+    response_cities = False
+    response_ephemeride = False
+    response_around = False
+    if request.method == 'POST':
+        search = request.form['search']
+        response_cities = getApiCity(search)
+
+        # TODO Multiple form for insee ? or ajax ?
+        # insee = request.form['insee']
+        # response_ephemeride = getEphemeride(insee)
+        # response_around = getAround(insee, 1)
+
+    return render_template('index.html', cities=response_cities, ephemeride=response_ephemeride, around=response_around)
+
+
+# Recherche d'une ville
+@app.route('/searchCity', methods=['POST', 'GET'])
+def searchCity():  # put application's code here
+    if request.method == 'POST':
+        search = request.form['search']
+    else:
+        search = request.args.get('search')
+    return json.dumps(getApiCity(search), indent=INDENT, sort_keys=True)
+
+
+# Informations sur la Ville
+@app.route('/city', methods=['POST', 'GET'])
+def getCity():  # put application's code here
+    if request.method == 'POST':
+        insee = request.form['insee']
+    else:
+        insee = request.args.get('insee')
+    return json.dumps(getCity(insee), indent=INDENT, sort_keys=True)
+
+
+# Information sur la ville et Ephéméride
+@app.route('/ephemeride', methods=['POST', 'GET'])
+def ephemeride():  # put application's code here
+    if request.method == 'POST':
+        insee = request.form['insee']
+    else:
+        insee = request.args.get('insee')
+    return json.dumps(getEphemeride(insee), indent=INDENT, sort_keys=True)
 
 
 # Information sur les alentours d'une ville
@@ -111,18 +136,7 @@ def around():  # put application's code here
     else:
         insee = request.args.get('insee')
         radius = request.args.get('radius')
-
-    if METEOCONCEPT_TOKEN is None:
-        log('Env variable METEOCONCEPT_TOKEN not passed')
-        return 'Env variable METEOCONCEPT_TOKEN not passed'
-    elif insee is None or radius is None:
-        log('GET/POST insee or radius variable not passed')
-        return 'GET/POST insee or radiu variable not passed'
-    else:
-        log('Env variable METEOCONCEPT_TOKEN passed')
-        with closing(urlopen(API_OBSERVATIONS_AROUND + API_TOKEN + METEOCONCEPT_TOKEN + API_INSEE + insee + API_RADIUS + radius)) as f:
-            around = json.loads(f.read())
-        return json.dumps(around, indent=INDENT, sort_keys=True)
+    return json.dumps(getAround(insee, radius), indent=INDENT, sort_keys=True)
 
 
 if __name__ == '__main__':

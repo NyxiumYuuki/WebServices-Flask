@@ -7,23 +7,32 @@
 </head>
 <body>
     <div class="meteoAPI">
-       <h1>WebServices : MétéoAPI</h1>
+        <h1>WebServices : MétéoAPI</h1>
         <form method="POST">
-            <label>Rechercher une ville : </label><input name="search"> <input type="submit" value="Search"></p>
+            <label>Rechercher une ville : </label><input name="search" value="{{cities[0]}}"> <input type="submit" value="Search"></p>
         </form>
-        <div class="response">
-            <br><br>
-            {% if response %}
-               <h2>Results</h2>
+        {% if cities[1]|length == 0 %}
+            <p class="error">No results for {{cities[0]}}</p>
+        {% endif %}
+        {% if cities and cities[1] and cities[1]|length > 0 %}
+            <form  method="POST">
+                <h3> Select city ({{cities[1]|length}} found for {{cities[0]}}) :
+                <select name="insee" method="POST">
+                  <label>Rechercher une ville : </label>{% if cities[1]|length > 0 %} <option  value="{{cities[1][0]['name']}}" selected>{{cities[1][0]['name']}} ({{cities[1][0]['cp']}})</option> {% endif %}
+                  {% for city in cities[1][1:] %}
+                    <option value="{{city['insee']}}">{{city['name']}} ({{city['cp']}})</option>
+                  {% endfor %}
+                </select></h3>
+            </form>
+        {% endif %}
+        {% if ephemeride %}
+            <div class="ephemeride">
+                <br><br>
                 <ul>
-                  {% for city in response %}
-                    <ul>
-                        <li>{{city}}</li>
-                    </ul>
-                  {%endfor%}
+                    {{ ephemeride[1] }}
                 </ul>
-            {% endif %}
-        </div>
+            </div>
+        {% endif %}
     </div>
 </body>
 </html>
