@@ -1,6 +1,25 @@
-h1 {
-    border: 2px #eee solid;
-    color: red;
-    text-align: center;
-    padding: 10px;
+h1{
+    color: black;
 }
+
+form{
+}
+
+ul{
+
+}
+
+li{
+
+}
+
+.meteoAPI{
+    border: 2px #eee solid;
+    padding: 10px;
+    text-align: center;
+}
+
+.response{
+
+}
+

@@ -14,7 +14,14 @@ def log(*args):
     sys.stdout.flush()
 
 
+def getApiCity(search):
+    with closing(urlopen(API_LOCATION_CITIES + API_TOKEN + METEOCONCEPT_TOKEN + API_SEARCH + search)) as f:
+        cities = json.loads(f.read())['cities']
+    return cities
+
+
 app = Flask(__name__)
+
 
 
 @app.route('/config')
@@ -22,9 +29,16 @@ def config():  # put application's code here
     return str(INDENT) + str(WEATHER) + str(WINDDIRS)
 
 
-@app.route('/')
+@app.route('/', methods=['POST', 'GET'])
 def index():
-    return render_template('index.html')
+    response = False
+    if request.method == 'POST':
+        search = request.form['search']
+        if search is None:
+            response = []
+        else:
+            response = getApiCity(search)
+    return render_template('index.html', response=response)
 
 
 # Recherche d'une ville
@@ -43,9 +57,7 @@ def searchCity():  # put application's code here
         return 'GET/POST search variable not passed'
     else:
         log('Env variable METEOCONCEPT_TOKEN passed')
-        with closing(urlopen(API_LOCATION_CITIES + API_TOKEN + METEOCONCEPT_TOKEN + API_SEARCH + search)) as f:
-            cities = json.loads(f.read())['cities']
-        return json.dumps(cities, indent=INDENT, sort_keys=True)
+    return getApiCity(search)
 
 
 # Informations sur la Ville

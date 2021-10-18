@@ -6,6 +6,24 @@
     <title>Flask App</title>
 </head>
 <body>
-   <h1>Welcome to Flask</h1>
+    <div class="meteoAPI">
+       <h1>WebServices : MétéoAPI</h1>
+        <form method="POST">
+            <label>Rechercher une ville : </label><input name="search"> <input type="submit" value="Search"></p>
+        </form>
+        <div class="response">
+            <br><br>
+            {% if response %}
+               <h2>Results</h2>
+                <ul>
+                  {% for city in response %}
+                    <ul>
+                        <li>{{city}}</li>
+                    </ul>
+                  {%endfor%}
+                </ul>
+            {% endif %}
+        </div>
+    </div>
 </body>
 </html>
