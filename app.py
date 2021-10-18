@@ -1,7 +1,7 @@
 import os
 import sys
 
-from flask import Flask, request
+from flask import Flask, request, render_template
 from contextlib import closing
 from urllib.request import urlopen
 import json
@@ -23,8 +23,8 @@ def config():  # put application's code here
 
 
 @app.route('/')
-def hello_world():  # put application's code here
-    return 'Hello World!'
+def index():
+    return render_template('index.html')
 
 
 # Recherche d'une ville
