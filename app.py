@@ -57,7 +57,7 @@ def searchCity():  # put application's code here
         return 'GET/POST search variable not passed'
     else:
         log('Env variable METEOCONCEPT_TOKEN passed')
-    return getApiCity(search)
+    return json.dumps(getApiCity(search), indent=INDENT, sort_keys=True)
 
 
 # Informations sur la Ville
