@@ -7,18 +7,28 @@ from urllib.request import urlopen
 import json
 from config import *
 
+
+# logging helper
+def log(*args):
+    print(args[0] % (len(args) > 1 and args[1:] or []))
+    sys.stdout.flush()
+
+
 app = Flask(__name__)
+
 
 @app.route('/config')
 def config():  # put application's code here
-    return str(INDENT)+str(WEATHER)+str(WINDDIRS)
+    return str(INDENT) + str(WEATHER) + str(WINDDIRS)
+
 
 @app.route('/')
 def hello_world():  # put application's code here
     return 'Hello World!'
 
-#TODO Recherche d'une ville
-@app.route('/searchCity', methods = ['POST', 'GET'])
+
+# TODO Recherche d'une ville
+@app.route('/searchCity', methods=['POST', 'GET'])
 def searchCity():  # put application's code here
     if request.method == 'POST':
         city = request.form['search']
@@ -29,9 +39,9 @@ def searchCity():  # put application's code here
     return json.dumps(cities, indent=INDENT, sort_keys=True)
 
 
-#TODO Informations sur la Ville
+# TODO Informations sur la Ville
 
-#TODO Information sur la ville et Ephéméride
+# TODO Information sur la ville et Ephéméride
 
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 33507))
@@ -39,8 +49,8 @@ if __name__ == '__main__':
     # On Windows 'set METEOCONCEPT_TOKEN=...' (check on Powershell echo $Env:METEOCONCEPT_TOKEN)
     METEOCONCEPT_TOKEN = int(os.environ.get('METEOCONCEPT_TOKEN', -1))
     if METEOCONCEPT_TOKEN == -1:
-        print('Env variable METEOCONCEPT_TOKEN not passed')
+        log('Env variable METEOCONCEPT_TOKEN not passed')
         sys.exit(0)
     else:
-        print('Env variable METEOCONCEPT_TOKEN passed')
+        log('Env variable METEOCONCEPT_TOKEN passed')
         app.run(host='0.0.0.0', port=PORT, debug=True)
