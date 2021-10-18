@@ -7,6 +7,7 @@ BASE_API_URL = 'https://api.meteo-concept.com/api/'
 API_TOKEN = '?token='
 API_SEARCH = '&search='
 API_INSEE = '&insee='
+API_RADIUS = '&radius='
 
 API_LOCATION_CITIES = BASE_API_URL + 'location/cities'
 API_LOCATION_CITY = BASE_API_URL + 'location/city'

@@ -80,6 +80,24 @@ def ephemeride():  # put application's code here
             cityEph = json.loads(f.read())
         return json.dumps(cityEph, indent=INDENT, sort_keys=True)
 
+# TODO Information sur la ville et Ephéméride
+@app.route('/around', methods=['POST', 'GET'])
+def ephemeride():  # put application's code here
+    if request.method == 'POST':
+        insee = request.form['insee']
+        radius = request.form['radius']
+    else:
+        insee = request.args.get('insee')
+        radius = request.args.get('radius')
+
+    if METEOCONCEPT_TOKEN == -1:
+        log('Env variable METEOCONCEPT_TOKEN not passed')
+        return 'Env variable METEOCONCEPT_TOKEN not passed'
+    else:
+        log('Env variable METEOCONCEPT_TOKEN passed')
+        with closing(urlopen(API_OBSERVATIONS_AROUND + API_TOKEN + METEOCONCEPT_TOKEN + API_INSEE + insee + API_RADIUS + radius)) as f:
+            around = json.loads(f.read())
+        return json.dumps(around, indent=INDENT, sort_keys=True)
 
 
 # TODO Information sur les alentours d'une ville
