@@ -2,12 +2,16 @@
 INDENT = 4
 
 # API URL
+BASE_API_URL = 'https://api.meteo-concept.com/api/'
+
 API_TOKEN = '?token='
 API_SEARCH = '&search='
+API_INSEE = '&insee='
 
-API_LOCATION_CITIES = 'https://api.meteo-concept.com/api/location/cities'
-API_LOCATION_CITY = 'https://api.meteo-concept.com/api/location/city'
-API_EPHEMERIDE = 'https://api.meteo-concept.com/api/ephemeride/1'
+API_LOCATION_CITIES = BASE_API_URL + 'location/cities'
+API_LOCATION_CITY = BASE_API_URL + 'location/city'
+API_EPHEMERIDE = BASE_API_URL + 'ephemeride/1'
+API_OBSERVATIONS_AROUND = BASE_API_URL + 'observations/around'
 
 # STATIC VARIABLES
 WINDDIRS = [
