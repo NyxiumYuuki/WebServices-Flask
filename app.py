@@ -63,7 +63,7 @@ def getCity():  # put application's code here
         return json.dumps(city, indent=INDENT, sort_keys=True)
 
 
-# TODO Information sur la ville et Ephéméride
+# Information sur la ville et Ephéméride
 @app.route('/ephemeride', methods=['POST', 'GET'])
 def ephemeride():  # put application's code here
     if request.method == 'POST':
@@ -80,7 +80,7 @@ def ephemeride():  # put application's code here
             cityEph = json.loads(f.read())
         return json.dumps(cityEph, indent=INDENT, sort_keys=True)
 
-# TODO Information sur la ville et Ephéméride
+# Information sur les alentours d'une ville
 @app.route('/around', methods=['POST', 'GET'])
 def ephemeride():  # put application's code here
     if request.method == 'POST':
@@ -100,7 +100,7 @@ def ephemeride():  # put application's code here
         return json.dumps(around, indent=INDENT, sort_keys=True)
 
 
-# TODO Information sur les alentours d'une ville
+
 
 
 if __name__ == '__main__':
