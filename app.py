@@ -1,32 +1,12 @@
 import os
-import sys
 
 from flask import Flask, request, render_template
-from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, FloatField, validators
-from wtforms.validators import InputRequired
+
 from contextlib import closing
 from urllib.request import urlopen
 import json
 from config import *
-
-
-# logging helper
-def log(*args):
-    print(args[0] % (len(args) > 1 and args[1:] or []))
-    sys.stdout.flush()
-
-
-class Search(FlaskForm):
-    search = StringField('Search', [validators.InputRequired()])
-
-
-class City(FlaskForm):
-    insee = StringField('Insee', [validators.InputRequired()])
-
-
-class Around(FlaskForm):
-    insee = StringField('Insee', [validators.InputRequired()])
+from forms import *
 
 def getApiCity(search):
     if METEOCONCEPT_TOKEN is None:
@@ -104,19 +84,19 @@ def index():
     city = City()
     around = Around()
 
-    if search.validate_on_submit():
+    if search.submit_search.data and search.validate_on_submit():
         return render_template('index.html', cities=getApiCity(search))
 
-    if city.validate_on_submit():
+    if city.submit_city.data and city.validate_on_submit():
         return render_template('index.html', ephemeride=getEphemeride(city))
 
-    if around.validate_on_submit():
+    if around.submit_around.data and around.validate_on_submit():
         return render_template('index.html', around=getAround(around, 1))
 
         # TODO Multiple form for insee ? or ajax ?
-        # insee = request.form['insee']
-        # response_ephemeride = getEphemeride(insee)
-        # response_around = getAround(insee, 1)
+        insee = request.form['insee']
+        response_ephemeride = getEphemeride(insee)
+        response_around = getAround(insee, 1)
 
     return render_template('index.html', cities=response_cities, ephemeride=response_ephemeride, around=response_around)
 
