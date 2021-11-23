@@ -1,9 +1,8 @@
-from flask import Flask, request, render_template
-from config import *
-from forms import *
+from flask import Flask, request
 from api_fonction import *
 
 app = Flask(__name__)
+
 
 def app_response(results):
     if JSON_PRETTYFIER:
@@ -18,6 +17,7 @@ def app_response(results):
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
 
+
 @app.route('/config')
 def config():  # put application's code here
     return app_response({})
@@ -30,7 +30,7 @@ def search():  # put application's code here
         query = request.form['query']
     else:
         query = request.args.get('query')
-    return app_response(getSearch(query))
+    return app_response(getSearch(query, app.config['METEOCONCEPT_TOKEN'], app.config['WEATHERSTACK_TOKEN']))
 
 
 # Information sur les alentours d'une ville
@@ -40,26 +40,17 @@ def current():  # put application's code here
         query = request.form['query']
     else:
         query = request.args.get('query')
-    return app_response(getCurrent(query))
+    return app_response(getCurrent(query, app.config['METEOCONCEPT_TOKEN'], app.config['WEATHERSTACK_TOKEN']))
 
-# # Informations sur la Ville
-# @app.route('/city', methods=['POST', 'GET'])
-# def getCity():  # put application's code here
-#     if request.method == 'POST':
-#         insee = request.form['insee']
-#     else:
-#         insee = request.args.get('insee')
-#     return app_response(json.dumps(getCity(insee), indent=INDENT, sort_keys=True))
-#
-#
-# # Information sur la ville et Ephéméride
-# @app.route('/ephemeride', methods=['POST', 'GET'])
-# def ephemeride():  # put application's code here
-#     if request.method == 'POST':
-#         insee = request.form['insee']
-#     else:
-#         insee = request.args.get('insee')
-#     return app_response(json.dumps(getEphemeride(insee), indent=INDENT, sort_keys=True))
+
+# Informations sur la Ville
+@app.route('/city', methods=['POST', 'GET'])
+def city():  # put application's code here
+    if request.method == 'POST':
+        query = request.form['query']
+    else:
+        query = request.args.get('query')
+    return app_response(getCity(query, app.config['METEOCONCEPT_TOKEN'], app.config['WEATHERSTACK_TOKEN']))
 
 
 # @app.route('/', methods=['POST', 'GET'])

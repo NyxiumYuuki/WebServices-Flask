@@ -1,15 +1,9 @@
-import sys
-def log(*args):
-    print(args[0] % (len(args) > 1 and args[1:] or []))
-    sys.stdout.flush()
-
 # JSON DUMPS
 JSON_PRETTYFIER = True
 INDENT = 4
 
 # METEOCONCEPT API URL
 BASE_API_URL_METEOCONCEPT = 'https://api.meteo-concept.com/api/'
-METEOCONCEPT_TOKEN = "e93ee091ba7cd6ce1882fb55f9c030bbbafa0defaa0d8dd4f780b00897b989e1"
 API_TOKEN_METEOCONCEPT = '?token='
 API_SEARCH_METEOCONCEPT = '&search='
 API_INSEE_METEOCONCEPT = '&insee='
@@ -131,7 +125,6 @@ WEATHER_METEOCONCEPT = {
 
 # WEATHERSTACK API URL
 BASE_API_URL_WEATHERSTACK = 'http://api.weatherstack.com/'
-WEATHERSTACK_TOKEN = "e43f819bbbf50da109d7076840cd3f11"
 API_TOKEN_WEATHERSTACK = '?access_key='
 API_SEARCH_WEATHERSTACK = '&query='
 API_LOCATION_CITIES_WEATHERSTACK = BASE_API_URL_WEATHERSTACK + 'autocomplete'

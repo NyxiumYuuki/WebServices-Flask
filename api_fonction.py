@@ -2,15 +2,21 @@ from config import *
 from contextlib import closing
 from urllib.request import urlopen
 import json
+import sys
 
 
-def getSearch(query):
+def log(*args):
+    print(args[0] % (len(args) > 1 and args[1:] or []))
+    sys.stdout.flush()
+
+
+def getSearch(query, METEOCONCEPT_TOKEN, WEATHERSTACK_TOKEN):
     if METEOCONCEPT_TOKEN is None and WEATHERSTACK_TOKEN is None:
         log('Env variable METEOCONCEPT_TOKEN and WEATHERSTACK_TOKEN not passed')
         return 'Env variable METEOCONCEPT_TOKEN and WEATHERSTACK_TOKEN not passed'
     elif query is None:
-        log('GET/POST search variable not passed')
-        return 'GET/POST search variable not passed'
+        log('GET/POST query variable not passed')
+        return 'GET/POST query variable not passed'
     else:
         log('Env variable METEOCONCEPT_TOKEN or/and WEATHERSTACK_TOKEN passed')
         with closing(urlopen(
@@ -34,7 +40,7 @@ def getSearch(query):
                 }
 
 
-def getCurrent(query):
+def getCurrent(query, METEOCONCEPT_TOKEN, WEATHERSTACK_TOKEN):
     if METEOCONCEPT_TOKEN is None and WEATHERSTACK_TOKEN is None:
         log('Env variable METEOCONCEPT_TOKEN and WEATHERSTACK_TOKEN not passed')
         return 'Env variable METEOCONCEPT_TOKEN and WEATHERSTACK_TOKEN not passed'
@@ -43,23 +49,23 @@ def getCurrent(query):
         return 'GET/POST query variable not passed'
     else:
         log('Env variable METEOCONCEPT_TOKEN or/and WEATHERSTACK_TOKEN passed')
-        try:
-            query = int(query)
+        if query.isnumeric():
+            insee = int(query)
             with closing(urlopen(
                     API_OBSERVATIONS_AROUND_METEOCONCEPT +
                     API_TOKEN_METEOCONCEPT +
                     METEOCONCEPT_TOKEN +
                     API_INSEE_METEOCONCEPT +
-                    str(query) +
+                    str(insee) +
                     API_RADIUS_METEOCONCEPT +
                     '0')) as f:
-                around_METEOCONCEPT = json.loads(f.read())
-            return {"query": query, "around": {
+                around_METEOCONCEPT = json.loads(f.read())[0]
+            return {"query": insee, "current": {
                 "METEOCONCEPT": around_METEOCONCEPT,
                 "WEATHERSTACK": None
-                }
             }
-        except:
+                    }
+        else:
             with closing(urlopen(
                     API_OBSERVATIONS_AROUND_WEATHERSTACK +
                     API_TOKEN_WEATHERSTACK +
@@ -67,38 +73,47 @@ def getCurrent(query):
                     API_SEARCH_WEATHERSTACK +
                     query + ",France")) as f:
                 around_WEATHERSTACK = json.loads(f.read())
-            return {"query": query, "around": {
+            return {"query": query, "current": {
                 "METEOCONCEPT": None,
                 "WEATHERSTACK": around_WEATHERSTACK
-                }
             }
+                    }
 
 
+def getCity(query, METEOCONCEPT_TOKEN, WEATHERSTACK_TOKEN):
+    if METEOCONCEPT_TOKEN is None and WEATHERSTACK_TOKEN is None:
+        log('Env variable METEOCONCEPT_TOKEN and WEATHERSTACK_TOKEN not passed')
+        return 'Env variable METEOCONCEPT_TOKEN and WEATHERSTACK_TOKEN not passed'
+    elif query is None:
+        log('GET/POST query variable not passed')
+        return 'GET/POST query variable not passed'
+    else:
+        log('Env variable METEOCONCEPT_TOKEN or/and WEATHERSTACK_TOKEN passed')
+        if query.isnumeric():
+            insee = int(query)
+            with closing(urlopen(
+                    API_LOCATION_CITY_METEOCONCEPT +
+                    API_TOKEN_METEOCONCEPT +
+                    METEOCONCEPT_TOKEN +
+                    API_INSEE_METEOCONCEPT +
+                    str(insee))) as f:
+                city_METEOCONCEPT = json.loads(f.read())['city']
 
-# def getEphemeride(insee):
-#     if METEOCONCEPT_TOKEN is None:
-#         log('Env variable METEOCONCEPT_TOKEN not passed')
-#         return 'Env variable METEOCONCEPT_TOKEN not passed'
-#     elif insee is None:
-#         log('GET/POST insee variable not passed')
-#         return 'GET/POST insee variable not passed'
-#     else:
-#         log('Env variable METEOCONCEPT_TOKEN passed')
-#         with closing(urlopen(API_EPHEMERIDE + API_TOKEN + METEOCONCEPT_TOKEN + API_INSEE + insee)) as f:
-#             cityEph = json.loads(f.read())
-#         return [insee, cityEph]
-#
-#
-# def getCity(insee):
-#     if METEOCONCEPT_TOKEN is None and WEATHERSTACK_TOKEN is None:
-#         log('Env variable METEOCONCEPT_TOKEN and WEATHERSTACK_TOKEN not passed')
-#         return 'Env variable METEOCONCEPT_TOKEN and WEATHERSTACK_TOKEN not passed'
-#     elif search is None:
-#         log('GET/POST search variable not passed')
-#         return 'GET/POST search variable not passed'
-#     else:
-#         log('Env variable METEOCONCEPT_TOKEN or/and WEATHERSTACK_TOKEN passed')
-#
-#         with closing(urlopen(API_LOCATION_CITY + API_TOKEN + METEOCONCEPT_TOKEN + API_INSEE + insee)) as f:
-#             city = json.loads(f.read())['city']
-#         return [insee, city]
+            return {"query": insee, "city": {
+                "METEOCONCEPT": city_METEOCONCEPT,
+                "WEATHERSTACK": None
+            }
+                    }
+        else:
+            with closing(urlopen(
+                    API_OBSERVATIONS_AROUND_WEATHERSTACK +
+                    API_TOKEN_WEATHERSTACK +
+                    WEATHERSTACK_TOKEN +
+                    API_SEARCH_WEATHERSTACK +
+                    query + ",France")) as f:
+                city_WEATHERSTACK = json.loads(f.read())['location']
+            return {"query": query, "city": {
+                "METEOCONCEPT": None,
+                "WEATHERSTACK": city_WEATHERSTACK
+            }
+                    }
