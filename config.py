@@ -1,30 +1,24 @@
 import sys
-
-
-# logging helper
 def log(*args):
     print(args[0] % (len(args) > 1 and args[1:] or []))
     sys.stdout.flush()
 
-
 # JSON DUMPS
+JSON_PRETTYFIER = True
 INDENT = 4
 
-# API URL
-BASE_API_URL = 'https://api.meteo-concept.com/api/'
-
-API_TOKEN = '?token='
-API_SEARCH = '&search='
-API_INSEE = '&insee='
-API_RADIUS = '&radius='
-
-API_LOCATION_CITIES = BASE_API_URL + 'location/cities'
-API_LOCATION_CITY = BASE_API_URL + 'location/city'
-API_EPHEMERIDE = BASE_API_URL + 'ephemeride/1'
-API_OBSERVATIONS_AROUND = BASE_API_URL + 'observations/around'
-
-# STATIC VARIABLES
-WINDDIRS = [
+# METEOCONCEPT API URL
+BASE_API_URL_METEOCONCEPT = 'https://api.meteo-concept.com/api/'
+METEOCONCEPT_TOKEN = "e93ee091ba7cd6ce1882fb55f9c030bbbafa0defaa0d8dd4f780b00897b989e1"
+API_TOKEN_METEOCONCEPT = '?token='
+API_SEARCH_METEOCONCEPT = '&search='
+API_INSEE_METEOCONCEPT = '&insee='
+API_RADIUS_METEOCONCEPT = '&radius='
+API_LOCATION_CITIES_METEOCONCEPT = BASE_API_URL_METEOCONCEPT + 'location/cities'
+API_LOCATION_CITY_METEOCONCEPT = BASE_API_URL_METEOCONCEPT + 'location/city'
+API_EPHEMERIDE_METEOCONCEPT = BASE_API_URL_METEOCONCEPT + 'ephemeride/1'
+API_OBSERVATIONS_AROUND_METEOCONCEPT = BASE_API_URL_METEOCONCEPT + 'observations/around'
+WINDDIRS_METEOCONCEPT = [
     'Nord',
     'Nord-Nord-Est',
     'Nord-Est',
@@ -43,7 +37,7 @@ WINDDIRS = [
     'Nord-Nord-Ouest',
     'Nord'
 ]
-WEATHER = {
+WEATHER_METEOCONCEPT = {
     0: "Soleil",
     1: "Peu nuageux",
     2: "Ciel voilé",
@@ -133,3 +127,12 @@ WEATHER = {
     232: "Pluie et neige mêlées",
     235: "Averses de grêle",
 }
+
+
+# WEATHERSTACK API URL
+BASE_API_URL_WEATHERSTACK = 'http://api.weatherstack.com/'
+WEATHERSTACK_TOKEN = "e43f819bbbf50da109d7076840cd3f11"
+API_TOKEN_WEATHERSTACK = '?access_key='
+API_SEARCH_WEATHERSTACK = '&query='
+API_LOCATION_CITIES_WEATHERSTACK = BASE_API_URL_WEATHERSTACK + 'autocomplete'
+API_OBSERVATIONS_AROUND_WEATHERSTACK = BASE_API_URL_WEATHERSTACK + 'current'
