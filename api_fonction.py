@@ -79,6 +79,31 @@ def getCurrent(query, METEOCONCEPT_TOKEN, WEATHERSTACK_TOKEN):
             }
                     }
 
+def getForecast(query, METEOCONCEPT_TOKEN, WEATHERSTACK_TOKEN):
+    if METEOCONCEPT_TOKEN is None and WEATHERSTACK_TOKEN is None:
+        log('Env variable METEOCONCEPT_TOKEN and WEATHERSTACK_TOKEN not passed')
+        return 'Env variable METEOCONCEPT_TOKEN and WEATHERSTACK_TOKEN not passed'
+    elif query is None:
+        log('GET/POST query variable not passed')
+        return 'GET/POST query variable not passed'
+    else:
+        log('Env variable METEOCONCEPT_TOKEN or/and WEATHERSTACK_TOKEN passed')
+        if query.isnumeric():
+            insee = int(query)
+            with closing(urlopen(
+                    API_FORECAST_CITY_METEOCONCEPT +
+                    API_TOKEN_METEOCONCEPT +
+                    METEOCONCEPT_TOKEN +
+                    API_INSEE_METEOCONCEPT +
+                    str(insee))) as f:
+                forecast_METEOCONCEPT = json.loads(f.read())
+            return {"query": insee, "forecast": {
+                "METEOCONCEPT": forecast_METEOCONCEPT,
+                "WEATHERSTACK": None
+            }
+                    }
+        else:
+            return 'WEATHERSTACK not implemented'
 
 def getCity(query, METEOCONCEPT_TOKEN, WEATHERSTACK_TOKEN):
     if METEOCONCEPT_TOKEN is None and WEATHERSTACK_TOKEN is None:

@@ -12,4 +12,4 @@ if __name__ == '__main__':
     app.config['METEOCONCEPT_TOKEN'] = os.environ.get('METEOCONCEPT_TOKEN', METEOCONCEPT_TOKEN)
     app.config['WEATHERSTACK_TOKEN'] = os.environ.get('WEATHERSTACK_TOKEN', WEATHERSTACK_TOKEN)
     app.config['SECRET_KEY'] = 'secret_key'
-    app.run(host='0.0.0.0', port=PORT, debug=True)
+    app.run(host='0.0.0.0', port=PORT, debug=False)

@@ -2,37 +2,204 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.9/css/weather-icons.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    {# https://codepen.io/MiguelEnc/pen/vmZVar #}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"></script>
+
+    <link rel="icon" href="{{ url_for('static', filename= 'img/favicon.ico') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
+    <script src="{{ url_for('static', filename= 'js/weather.app.js') }}"></script>
     <title>Flask App</title>
 </head>
 <body>
-    <div class="meteoAPI">
-        <h1>WebServices : MétéoAPI</h1>
-        <form method="POST">
-            <label>Rechercher une ville : </label><input name="search" value="{{cities[0]}}"> <input type="submit" value="Search"></p>
-        </form>
-        {% if cities[1]|length == 0 %}
-            <p class="error">No results for {{cities[0]}}</p>
-        {% endif %}
-        {% if cities and cities[1] and cities[1]|length > 0 %}
-            <form  method="POST">
-                <h3> Select city ({{cities[1]|length}} found for {{cities[0]}}) :
-                <select name="insee" method="POST">
-                  <label>Rechercher une ville : </label>{% if cities[1]|length > 0 %} <option  value="{{cities[1][0]['name']}}" selected>{{cities[1][0]['name']}} ({{cities[1][0]['cp']}})</option> {% endif %}
-                  {% for city in cities[1][1:] %}
-                    <option value="{{city['insee']}}">{{city['name']}} ({{city['cp']}})</option>
-                  {% endfor %}
-                </select></h3>
-            </form>
-        {% endif %}
-        {% if ephemeride %}
-            <div class="ephemeride">
-                <br><br>
-                <ul>
-                    {{ ephemeride[1] }}
-                </ul>
-            </div>
-        {% endif %}
+    <br>
+    <div class="container">
+      <h1>WebServices : MétéoAPI</h1>
+      <br />
+      <div class="panel panel-default">
+        <div class="panel-body">
+          <div class="form-group">
+            <label>Rechercher une ville : </label> <input name="input_city" id="input_city" placeholder="Recherche une ville">
+            <select name="select_city" id="select_city" class="form-control input-lg" data-live-search="true" title="Sélectionner une ville">
+            </select>
+          </div>
+        </div>
+      </div>
     </div>
+    <div class="container" id="wrapper" style="visibility: hidden;">
+      <div class="container-fluid" id="current-weather">
+        <div class="row">
+
+          <!-- Right panel -->
+      <div class="col-md-4 col-sm-5">
+        <h5><spam id="cityName"></spam>, <spam id="cityCode"></spam></h5>
+        <h6 id="localDate"></h6>
+        <h5 id="localTime"></h5>
+        <a id="refreshButton" href="#"><i class="fa fa-refresh fa-fw" aria-hidden="true"></i> Refresh</a>
+      </div>
+
+      <!-- Center panel -->
+      <div class="col-md-5 col-sm-7" style="margin: 10px auto;padding:0;">
+        <div class="row">
+          <i class="wi" id ="main-icon" style="font-size: 85px;"></i>
+          <div>
+            <spam id="mainTemperature"></spam>
+            <p id="tempDescription"></p>
+          </div>
+          <p style="font-size: 1.5rem;"><a href="#" class="active" id="celcius">°C</a></p>
+        </div>
+      </div>
+
+      <!-- Left panel -->
+      <div class="col-xs-12 col-sm-12 col-md-3 row" style="text-align: right;">
+        <div class="col-md-12 col-sm-3 col-xs-3 side-weather-info">
+          <h6>Humidity: <spam id="humidity"></spam>%</h6>
+        </div>
+        <div class="col-md-12 col-sm-3 col-xs-3 side-weather-info">
+          <h6>Wind: <spam id="wind"></spam> m/s</h6>
+        </div>
+        <div class="col-md-12 col-sm-3 col-xs-3 side-weather-info">
+          <h6>High: <spam id="mainTempHot"></spam>°</h6>
+        </div>
+        <div class="col-md-12 col-sm-3 col-xs-3 side-weather-info">
+          <h6>Low: <spam id="mainTempLow"></spam>°</h6>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="protocol-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <p>Due to weather api restrictions, data can only be shown via HTTP request.</p>
+          <p>Sorry for the inconvenience.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+      <!-- 4 days forecast -->
+      <div class="container-fluid">
+        <div class="row" style="padding: 2px;">
+
+          <!-- Day 1 -->
+          <div class="col-md-3 col-sm-6 day-weather-box">
+            <div class="col-sm-12 day-weather-inner-box">
+              <div class="col-sm-8 forecast-main">
+                <p id="forecast-day-1-name"></p>
+                <div class="row">
+                  <h5 id="forecast-day-1-main">°</h5>
+                  <i class="wi forecast-icon" id="forecast-day-1-icon"></i>
+                </div>
+              </div>
+              <div class="col-sm-4 forecast-min-low">
+                <p><spam class="high-temperature" id="forecast-day-1-ht"></spam></p>
+                <p><spam class="low-temperature" id="forecast-day-1-lt"></spam></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Day 2 -->
+          <div class="col-md-3 col-sm-6 day-weather-box">
+            <div class="col-sm-12 day-weather-inner-box">
+              <div class="col-sm-8 forecast-main">
+                <p id="forecast-day-2-name"></p>
+                <div class="row">
+                  <h5 id="forecast-day-2-main">°</h5>
+                  <i class="wi forecast-icon" id="forecast-day-2-icon"></i>
+                </div>
+              </div>
+              <div class="col-sm-4 forecast-min-low">
+                <p><spam class="high-temperature" id="forecast-day-2-ht"></spam></p>
+                <p><spam class="low-temperature" id="forecast-day-2-lt"></spam></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Day 3 -->
+          <div class="col-md-3 col-sm-6 day-weather-box">
+            <div class="col-sm-12 day-weather-inner-box">
+              <div class="col-sm-8 forecast-main">
+                <p id="forecast-day-3-name"></p>
+                <div class="row">
+                  <h5 id="forecast-day-3-main">°</h5>
+                  <i class="wi forecast-icon" id="forecast-day-3-icon"></i>
+                </div>
+              </div>
+              <div class="col-sm-4 forecast-min-low">
+                <p><spam class="high-temperature" id="forecast-day-3-ht"></spam></p>
+                <p><spam class="low-temperature" id="forecast-day-3-lt"></spam></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Day 4 -->
+          <div class="col-md-3 col-sm-6 day-weather-box">
+            <div class="col-sm-12 day-weather-inner-box">
+              <div class="col-sm-8 forecast-main">
+                <p id="forecast-day-4-name"></p>
+                <div class="row">
+                  <h5 id="forecast-day-4-main">°</h5>
+                  <i class="wi forecast-icon" id="forecast-day-4-icon"></i>
+                </div>
+              </div>
+              <div class="col-sm-4 forecast-min-low">
+                <p><spam class="high-temperature" id="forecast-day-4-ht"></spam></p>
+                <p><spam class="low-temperature" id="forecast-day-4-lt"></spam></p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <script>
+        $("body").on('change', '#input_city', function() {
+            var query = $('#input_city').val();
+            $.ajax({
+              url:"/search",
+              method:"POST",
+              data:{query:query},
+              dataType:"json",
+              success: function(data){
+                  var res  = data.cities.METEOCONCEPT;
+                  var html = '<option value="#">Selectionner ville</option>';
+                  for(var count = 0; count < res.length; count++) {
+                      html += '<option value="'+res[count].insee+'">'+res[count].name+'</option>';
+                  }
+
+                  if(res.length === 1){
+                      getWeatherData(res[0].insee);
+                      getForecastData(res[0].insee);
+                      $('#wrapper').removeAttr('style');
+                      $('#select_city').html('<option value="'+res[0].insee+'">'+res[0].name+'</option>');
+                  } else{
+                      $('#select_city').html(html);
+                  }
+              }
+            });
+        });
+
+        $("body").on('change', '#select_city', function(){
+            var insee = $('#select_city').val();
+            getWeatherData(insee);
+            getForecastData(insee);
+            $('#wrapper').removeAttr('style');
+        });
+    </script>
 </body>
 </html>
