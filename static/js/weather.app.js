@@ -253,7 +253,6 @@ function updateForecast(forecast){
   $("#cityName").text(city.name);
   $("#cityCode").text(city.cp);
   var data = forecast.forecast.METEOCONCEPT.forecast;
-  console.log(data);
 
   // Present day
   var today = data[0];
@@ -281,14 +280,6 @@ function updateForecast(forecast){
   }
 }
 
-// Refresh button handler
-$("#refreshButton").on("click", function(){
-  // Starts Refresh button's spinning animation
-  $("#refreshButton").html("<i class='fa fa-refresh fa-spin fa-fw'></i>");
-  getWeatherData();
-  getForecastData();
-});
-
 // Applies the following format to date: WeekDay, Month Day, Year
 function getFormattedDate(date){
   var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -304,10 +295,4 @@ function toCamelCase(str) {
     }
   );
   return arr.join(" ");
-}
-
-
-// Converts to Celcius
-function toCelcius(val){
-  return Math.round((val - 32) * (5/9));
 }

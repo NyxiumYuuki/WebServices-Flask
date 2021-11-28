@@ -169,7 +169,7 @@
     </div>
     <script>
         $("body").on('change', '#input_city', function() {
-            var query = $('#input_city').val();
+            var query = $('#input_city').val().replaceAll(' ', '-');
             $.ajax({
               url:"/search",
               method:"POST",
@@ -179,14 +179,25 @@
                   var res  = data.cities.METEOCONCEPT;
                   var html = '<option value="#">Selectionner ville</option>';
                   for(var count = 0; count < res.length; count++) {
-                      html += '<option value="'+res[count].insee+'">'+res[count].name+'</option>';
+                      var cp = res[count].cp.toString();
+                      if(cp.length < 5){
+                          cp = "0" + cp
+                      }
+                      html += '<option value="'+res[count].insee+'">'+res[count].name+' ('+cp+')</option>';
                   }
 
                   if(res.length === 1){
+                      sessionStorage.setItem('insee', res[0].insee);
                       getWeatherData(res[0].insee);
                       getForecastData(res[0].insee);
                       $('#wrapper').removeAttr('style');
-                      $('#select_city').html('<option value="'+res[0].insee+'">'+res[0].name+'</option>');
+                      var cp = res[0].cp.toString();
+                      if(cp.length < 5){
+                          cp = "0" + cp
+                      }
+                      $('#select_city').html('<option value="'+res[0].insee+'">'+res[0].name+'('+cp+')</option>');
+                  } else if (res.length === 0){
+                      $('#select_city').html('<option value="#">Aucun ville trouvée</option>');
                   } else{
                       $('#select_city').html(html);
                   }
@@ -196,9 +207,19 @@
 
         $("body").on('change', '#select_city', function(){
             var insee = $('#select_city').val();
+            sessionStorage.setItem('insee', insee);
             getWeatherData(insee);
             getForecastData(insee);
             $('#wrapper').removeAttr('style');
+        });
+
+
+        // Refresh button handler
+        $("#refreshButton").on("click", function(){
+          // Starts Refresh button's spinning animation
+          $("#refreshButton").html("<i class='fa fa-refresh fa-spin fa-fw'></i>");
+          getWeatherData(sessionStorage.getItem('insee'));
+          getForecastData(sessionStorage.getItem('insee'));
         });
     </script>
 </body>
